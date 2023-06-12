@@ -13,27 +13,35 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Service;
 
-public class ChatbotImpl {
-	
-	public static void main(String args[]) {
-		답변 = main("안녕", MyNaverInform.chatbot_apiURL, MKyNaverInform.chatbot_secreat);
+import com.example.ai.MyNaverInform;
+import com.example.ai.NaverService;
+
+//(질문, 답변) ("", 웰컴메시지)
+
+@Service("chatbotservice")
+public class ChatbotServiceImpl implements NaverService{
+	public String test(String request) {
+		return test(request, "send");
 	}
-
-  public static String main(String voiceMessage, String apiURL, String secretKey) {
-
+	
+	//질문을 챗봇에게 전달 - json 답변
+	public String test(String request, String event) {
+		//String result = main(request, MyNaverInform.chatbot_apiURL, MyNaverInform.chatbot_sercet);
+		//System.out.println(" ===챗봇 결과=== ");
+		//System.out.println(result);
 
         String chatbotMessage = "";
 
         try {
-            //String apiURL = "https://ex9av8bv0e.apigw.ntruss.com/custom_chatbot/prod/";
-
+          	String apiURL = MyNaverInform.chatbot_apiURL;
+        	String secretKey = MyNaverInform.chatbot_secret;
             URL url = new URL(apiURL);
-
-            String message = getReqMessage(voiceMessage);
+            String message = getReqMessage(request, event);//json형태 질문.(send/open)
             System.out.println("##" + message);
 
-            String encodeBase64String = makeSignature(message, secretKey);
+            String encodeBase64String = makeSignature(message, secretKey);//암호화
 
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
             con.setRequestMethod("POST");
@@ -72,7 +80,7 @@ public class ChatbotImpl {
 
         return chatbotMessage;
     }
-
+	//질문 시크릿키 암호화
     public static String makeSignature(String message, String secretKey) {
 
         String encodeBase64String = "";
@@ -85,7 +93,7 @@ public class ChatbotImpl {
             mac.init(signingKey);
 
             byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
-            encodeBase64String = Base64.encodeToString(rawHmac, Base64.NO_WRAP);
+            encodeBase64String = Base64.getEncoder().encodeToString(rawHmac);//안드로이드 -> java.util api 암호화
 
             return encodeBase64String;
 
@@ -97,7 +105,8 @@ public class ChatbotImpl {
 
     }
 
-    public static String getReqMessage(String voiceMessage) {
+    //json 형태로 요청값 전달
+    public static String getReqMessage(String voiceMessage, String event) {
 
         String requestBody = "";
 
@@ -129,7 +138,7 @@ public class ChatbotImpl {
             bubbles_array.put(bubbles_obj);
 
             obj.put("bubbles", bubbles_array);
-            obj.put("event", "send");
+            obj.put("event", event);//답변/웰컴메시지 결정
 
             requestBody = obj.toString();
 
@@ -141,3 +150,8 @@ public class ChatbotImpl {
 
     }
 }
+
+
+
+
+

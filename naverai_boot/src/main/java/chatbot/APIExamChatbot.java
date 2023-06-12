@@ -16,12 +16,16 @@ import org.json.JSONObject;
 
 import com.example.ai.MyNaverInform;
 
-public class APIExamChatbot {
-	
-	public static void main(String args[]) {
-		String result = main("안녕", MyNaverInform.chatbot_apiURL, MyNaverInform.chatbot_secret);
-	}
+public class APIExamChatbot{
 
+	public static void main(String args[]) {
+		//String result = main("", MyNaverInform.chatbot_apiURL, MyNaverInform.chatbot_sercet);//웰컴메시지
+		String result = main("오랜만이구나", MyNaverInform.chatbot_apiURL, MyNaverInform.chatbot_secret);
+		//기본답변, 이미지답변 json 분석
+		System.out.println(" ===챗봇 결과=== ");
+		System.out.println(result);
+	}
+	//질문을 챗봇에게 전달 - json 답변
   public static String main(String voiceMessage, String apiURL, String secretKey) {
 
 
@@ -74,7 +78,7 @@ public class APIExamChatbot {
 
         return chatbotMessage;
     }
-
+  //json 형태로 요청값 전달
     public static String makeSignature(String message, String secretKey) {
 
         String encodeBase64String = "";
@@ -87,7 +91,7 @@ public class APIExamChatbot {
             mac.init(signingKey);
 
             byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
-            encodeBase64String = Base64.encodeToString(rawHmac, Base64.NO_WRAP);
+            encodeBase64String = Base64.getEncoder().encodeToString(rawHmac);//안드로이드 -> java.util api 암호화
 
             return encodeBase64String;
 
@@ -98,7 +102,7 @@ public class APIExamChatbot {
         return encodeBase64String;
 
     }
-
+//질문 시크릿키 암호화
     public static String getReqMessage(String voiceMessage) {
 
         String requestBody = "";
@@ -131,7 +135,7 @@ public class APIExamChatbot {
             bubbles_array.put(bubbles_obj);
 
             obj.put("bubbles", bubbles_array);
-            obj.put("event", "send");
+            obj.put("event", "send");//send / open  중 하나 선택 (답변 / 웰컴메시지(질문무시))
 
             requestBody = obj.toString();
 
@@ -143,3 +147,8 @@ public class APIExamChatbot {
 
     }
 }
+
+
+
+
+
